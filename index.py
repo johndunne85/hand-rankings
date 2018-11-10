@@ -1,40 +1,42 @@
+# import modules
 import itertools, random
 
-# make a deck of cards
-deck = list(itertools.product([6,7,8,9,10,'J','Q','K','A'],['H','C','D','S']))
-
-# shuffle the cards
-random.shuffle(deck)
-a = str(deck[1][0])
-b = str(deck[1][1])
-c = str(deck[2][0])
-d = str(deck[2][1])
-x = a+b
-y = c+d
-
-t1 = str(deck[5][0])
-t2 = str(deck[5][1])
-t3 = str(deck[6][0])
-t4 = str(deck[6][1])
-t5 = str(deck[7][0])
-t6 = str(deck[7][1])
-t7 = str(deck[8][0])
-t8 = str(deck[8][1])
-t9 = str(deck[9][0])
-t10 = str(deck[9][1])
-
-ta = t1 + t2
-tb = t3 + t4
-tc = t5 + t6
-td = t7 + t8
-te = t9 + t10
 
 
-hand = [x,y]
-opponent = [deck[3][0], deck[3][1],deck[4][0], deck[4][1]]
-table = [ta, tb, tc, td, te]
-turn = [deck[10][0],deck[10][1]]
-river = [deck[11][0], deck[11][1]]
+
+# a = str(deck[1][0])
+# b = str(deck[1][1])
+# c = str(deck[2][0])
+# d = str(deck[2][1])
+# x = a+b
+# y = c+d
+#
+# t1 = str(deck[5][0])
+# t2 = str(deck[5][1])
+# t3 = str(deck[6][0])
+# t4 = str(deck[6][1])
+# t5 = str(deck[7][0])
+# t6 = str(deck[7][1])
+# t7 = str(deck[8][0])
+# t8 = str(deck[8][1])
+# t9 = str(deck[9][0])
+# t10 = str(deck[9][1])
+#
+# ta = t1 + t2
+# tb = t3 + t4
+# tc = t5 + t6
+# td = t7 + t8
+# te = t9 + t10
+#
+# op1 = str(deck[10][0])
+# op2 = str(deck[10][1])
+# op3 = str(deck[11][0])
+# op4 = str(deck[11][1])
+#
+# opp1 = op1 + op2
+# opp2 = op3 + op4
+
+
 
 
 def numeric_ranks(cards):
@@ -167,10 +169,10 @@ def get_best_hand(cards):
         'High card',
         'One pair',
         'Two pair',
-        'Three of a kind',
         'Straight',
-        'Flush',
+        'Three of a kind',
         'Full house',
+        'Flush',
         'Four of a kind',
         'Straight flush',
         'Royal flush'
@@ -198,28 +200,142 @@ def get_best_hand(cards):
             best_hand = hand # Choose hand with highest ranking cards
     return best_hand
 
+def highest_card_in_draw(hand, my_cards, opp_cards):
+    if hand == 'One pair':
+        hand = numeric_ranks(my_cards)
+        my_ranks = get_ranks(hand)
+        myFset = set(my_ranks)
+        mySset = set(my_ranks)
+        my_value = myFset & mySset
 
-cards = hand + table
-best_hand = get_best_hand(cards)
+        handop = numeric_ranks(opp_cards)
+        opp_ranks = get_ranks(handop)
+        oppFset = set(opp_ranks)
+        oppSset = set(opp_ranks)
+        opp_value = oppFset & oppSset
 
-print('Hand:', end=' ')
-for n in hand:
-    print(n, end=' ')
+        return my_value, opp_value
 
-print('')
-print('Cards on table:',end=' ')
-for n in table:
-    print(n, end=' ')
+    if hand == 'Two pair' or hand == 'Three of a kind' or hand == 'Full house':
 
-print('')
+        hand = numeric_ranks(my_cards)
+        my_ranks = get_ranks(hand)
+        myFset = set(my_ranks)
+        mySset = set(my_ranks)
+        my_value = sum(myFset & mySset)
 
-print('Best hand of five:', end=' ')
-for n in best_hand:
-    print(n, end=' ')
+        handop = numeric_ranks(opp_cards)
+        opp_ranks = get_ranks(handop)
+        oppFset = set(opp_ranks)
+        oppSset = set(opp_ranks)
+        opp_value = sum(oppFset & oppSset)
 
-print('')
+        return my_value, opp_value
 
-print(evaluate_hand(best_hand))
+    if hand == 'Straight':
+        hand = numeric_ranks(my_cards)
+        my_ranks = get_ranks(hand)
+        my_value = sum(my_ranks)
+
+        handop = numeric_ranks(opp_cards)
+        opp_ranks = get_ranks(handop)
+        opp_value = sum(opp_ranks)
+
+        return my_value, opp_value
+
+
+
+    else:
+        return -1, -1
+
+def main():
+    # make a deck of cards
+    deck = list(itertools.product([6,7,8,9,10,'J','Q','K','A'],['H','C','D','S']))
+    deck2 = ['6H','7H','8H','9H','10H','JH','QH','KH','AH','6C','7C','8C','9C','10C','JC','QC','KC','AC','6D','7D','8D','9D','10D','JD','QD','KD','AD','6S','7S','8S','9S','10S','JS','QS','KS','AS']
+
+    winning_hands = {'Invalid hand': 0, 'High card': 1,'One pair': 2, 'Two pair': 3, 'Straight': 4,'Three of a kind': 5,'Full house':6,'Flush': 7,'Four of a kind': 8,'Straight flush': 9,'Royal flush': 10}
+    outfile = open('results_of_games.txt', 'wt')
+    for n in range(20):
+        # shuffle the cards
+        random.shuffle(deck2)
+
+        hand = [deck2[0],deck2[1]]
+        opponents_cards2 = [deck2[2], deck2[3]]
+        cards_at_flop = [deck2[4], deck2[5], deck2[6]]
+        table = [deck2[4], deck2[5], deck2[6], deck2[7], deck2[8]]
+        turn = [deck2[9],deck[10]]
+        river = [deck2[11], deck2[12]]
+
+
+        my_cards = hand + table
+        opponents_cards5 = opponents_cards2 + table
+        my_best_hand = get_best_hand(my_cards)
+        opponents_best_hand = get_best_hand(opponents_cards5)
+        did_i_win = ''
+
+
+        print('My Hand:', end=' ')
+        for n in hand:
+            print(n, end=' ')
+        print('')
+
+        print('Opponents Hand:', end=' ')
+        for n in opponents_cards2:
+            print(n, end=' ')
+
+        print('')
+        print('Cards on table:',end=' ')
+        for n in table:
+            print(n, end=' ')
+
+        print('')
+
+        print('Best hand of five:', end=' ')
+        for n in my_best_hand:
+            print(n, end=' ')
+
+        print('')
+
+        print('My hand : ' + evaluate_hand(my_best_hand))
+        print('Opponents hand : '+evaluate_hand(opponents_best_hand))
+
+        my_hand = evaluate_hand(my_best_hand)
+        oppent_hand = evaluate_hand(opponents_best_hand)
+
+        my_highest_card = max(hand)
+        opp_highest_card = max(opponents_cards2)
+
+        if winning_hands[my_hand] > winning_hands[oppent_hand]:
+            did_i_win = 'win'
+        elif my_hand == oppent_hand:
+            if my_hand == 'High card':
+                if max(hand) > max(opponents_cards2):
+                    did_i_win = 'win'
+                elif max(hand) == max(opponents_cards2):
+                    did_i_win = 'draw'
+                else:
+                    did_i_win = 'loss'
+
+            else:
+                my_value, opp_val = highest_card_in_draw(my_hand, my_best_hand,opponents_best_hand)
+                if my_value > opp_val:
+                    did_i_win = 'win'
+                elif my_value == opp_val:
+                    did_i_win = 'draw'
+                else:
+                    did_i_win = 'loss'
+
+
+        else:
+            did_i_win = 'loss'
+
+
+        flop_cards = ' '.join(cards_at_flop)
+        jhand = ' '.join(hand)
+        print('myCards '+jhand+' flop '+flop_cards+' '+did_i_win, file=outfile)
+
+    outfile.close()
+if __name__=='__main__':main()
 
 
 #print('My cards {} {}'.format(hand[0],hand[1]))
