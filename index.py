@@ -286,7 +286,7 @@ def main():
 
 
 
-    for n in range(6000):
+    for n in range(9000):
         # shuffle the cards
         random.shuffle(deck2)
 
@@ -446,12 +446,12 @@ def main():
     for idx, m in enumerate(matrix):
         for i in m:
             if isinstance(i,int) and idx > 0:
-                if i > 0:
-                    print(i,end='\t')
+                if i > 8:
+                    print(1,end=' ')
                 else:
-                    print(0,end='\t')
+                    print(0,end=' ')
             else:
-                print(i,end='\t')
+                print(i,end=' ')
 
         print()
 
