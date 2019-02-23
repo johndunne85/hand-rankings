@@ -1,6 +1,6 @@
 # import modules
 import itertools, random
-
+import collections
 
 
 
@@ -204,31 +204,45 @@ def highest_card_in_draw(hand, my_cards, opp_cards):
     if hand == 'One pair':
         hand = numeric_ranks(my_cards)
         my_ranks = get_ranks(hand)
-        myFset = set(my_ranks)
-        mySset = set(my_ranks)
-        my_value = myFset & mySset
+        mylist = [item for item, count in collections.Counter(my_ranks).items() if count > 1]
+        my_value = mylist
 
         handop = numeric_ranks(opp_cards)
         opp_ranks = get_ranks(handop)
-        oppFset = set(opp_ranks)
-        oppSset = set(opp_ranks)
-        opp_value = oppFset & oppSset
+        opplist = [item for item, count in collections.Counter(opp_ranks).items() if count > 1]
+        opp_value = opplist
 
         return my_value, opp_value
 
-    if hand == 'Two pair' or hand == 'Three of a kind' or hand == 'Full house':
+    if hand == 'Two pair' or hand == 'Three of a kind':
 
         hand = numeric_ranks(my_cards)
         my_ranks = get_ranks(hand)
-        myFset = set(my_ranks)
-        mySset = set(my_ranks)
-        my_value = sum(myFset & mySset)
+        mylist = [item for item, count in collections.Counter(my_ranks).items() if count > 1]
+        my_value = max(mylist)
 
         handop = numeric_ranks(opp_cards)
         opp_ranks = get_ranks(handop)
-        oppFset = set(opp_ranks)
-        oppSset = set(opp_ranks)
-        opp_value = sum(oppFset & oppSset)
+        opplist = [item for item, count in collections.Counter(opp_ranks).items() if count > 1]
+        opp_value = max(opplist)
+
+        if my_value == opp_value:
+            return sum(mylist), sum(opplist)
+
+
+        return my_value, opp_value
+
+    if  hand == 'Full house':
+
+        hand = numeric_ranks(my_cards)
+        my_ranks = get_ranks(hand)
+        mylist = [item for item, count in collections.Counter(my_ranks).items() if count > 1]
+        my_value = sum(mylist)
+
+        handop = numeric_ranks(opp_cards)
+        opp_ranks = get_ranks(handop)
+        opplist = [item for item, count in collections.Counter(opp_ranks).items() if count > 1]
+        opp_value = sum(opplist)
 
         return my_value, opp_value
 
@@ -255,7 +269,24 @@ def main():
 
     winning_hands = {'Invalid hand': 0, 'High card': 1,'One pair': 2, 'Two pair': 3, 'Straight': 4,'Three of a kind': 5,'Full house':6,'Flush': 7,'Four of a kind': 8,'Straight flush': 9,'Royal flush': 10}
     outfile = open('results_of_games.txt', 'wt')
-    for n in range(20):
+
+    matrix = [[' ','A','K','Q','J','T',9,8,7,6],['A',0,0,0,0,0,0,0,0,0],\
+    ['K',0,0,0,0,0,0,0,0,0],\
+    ['Q',0,0,0,0,0,0,0,0,0],['J',0,0,0,0,0,0,0,0,0],\
+    ['T',0,0,0,0,0,0,0,0,0],['9',0,0,0,0,0,0,0,0,0],\
+    ['8',0,0,0,0,0,0,0,0,0],['7',0,0,0,0,0,0,0,0,0],\
+    ['6',0,0,0,0,0,0,0,0,0]]
+
+    dict = {'A':1,'K':2,'Q':3,'J':4,'1':5,'9':6,'8':7,'7':8,'6':9}
+
+    # for m in matrix:
+    #     for i in m:
+    #         print(i,end='  ')
+    #     print()
+
+
+
+    for n in range(6000):
         # shuffle the cards
         random.shuffle(deck2)
 
@@ -274,30 +305,36 @@ def main():
         did_i_win = ''
 
 
-        print('My Hand:', end=' ')
-        for n in hand:
-            print(n, end=' ')
-        print('')
-
-        print('Opponents Hand:', end=' ')
-        for n in opponents_cards2:
-            print(n, end=' ')
-
-        print('')
-        print('Cards on table:',end=' ')
-        for n in table:
-            print(n, end=' ')
-
-        print('')
-
-        print('Best hand of five:', end=' ')
-        for n in my_best_hand:
-            print(n, end=' ')
-
-        print('')
-
-        print('My hand : ' + evaluate_hand(my_best_hand))
-        print('Opponents hand : '+evaluate_hand(opponents_best_hand))
+        # print('My Hand:', end=' ')
+        # for n in hand:
+        #     print(n, end=' ')
+        # print('')
+        #
+        # print('Opponents Hand:', end=' ')
+        # for n in opponents_cards2:
+        #     print(n, end=' ')
+        #
+        # print('')
+        # print('Cards on table:',end=' ')
+        # for n in table:
+        #     print(n, end=' ')
+        #
+        # print('')
+        #
+        # print('my best hand of five:', end=' ')
+        # for n in my_best_hand:
+        #     print(n, end=' ')
+        #
+        # print('')
+        #
+        # print('opponents best hand of five:', end=' ')
+        # for n in opponents_best_hand:
+        #     print(n, end=' ')
+        #
+        # print('')
+        #
+        # print('My hand : ' + evaluate_hand(my_best_hand))
+        # print('Opponents hand : '+evaluate_hand(opponents_best_hand))
 
         my_hand = evaluate_hand(my_best_hand)
         oppent_hand = evaluate_hand(opponents_best_hand)
@@ -330,9 +367,96 @@ def main():
             did_i_win = 'loss'
 
 
-        flop_cards = ' '.join(cards_at_flop)
-        jhand = ' '.join(hand)
-        print('myCards '+jhand+' flop '+flop_cards+' '+did_i_win, file=outfile)
+        flop_cards = ','.join(cards_at_flop)
+        jhand = ','.join(hand)
+        print(jhand+' '+did_i_win,file=outfile)
+
+        are_suited = False
+
+        if did_i_win == 'win':
+
+            if jhand[3] == ',':
+                if jhand[2] == jhand[5]:
+                    num_a = jhand[0]
+                    num_b = jhand[4]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] += 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] += 1
+                else:
+
+                    num_a = jhand[0]
+                    num_b = jhand[4]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] += 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] += 1
+
+            else:
+                if jhand[1] == jhand[4]:
+                    num_a = jhand[0]
+                    num_b = jhand[3]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] += 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] += 1
+                else:
+                    num_a = jhand[0]
+                    num_b = jhand[3]
+                    if num_a < num_b:
+                        matrix[dict[num_a]][dict[num_b]] += 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] += 1
+
+
+        if did_i_win == 'loss':
+            if jhand[3] == ',':
+                if jhand[2] == jhand[5]:
+                    num_a = jhand[0]
+                    num_b = jhand[4]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] -= 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] -= 1
+                else:
+
+                    num_a = jhand[0]
+                    num_b = jhand[4]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] -= 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] -= 1
+
+            else:
+                if jhand[1] == jhand[4]:
+                    num_a = jhand[0]
+                    num_b = jhand[3]
+                    if num_a > num_b:
+                        matrix[dict[num_a]][dict[num_b]] -= 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] -= 1
+                else:
+                    num_a = jhand[0]
+                    num_b = jhand[3]
+                    if num_a < num_b:
+                        matrix[dict[num_a]][dict[num_b]] -= 1
+                    else:
+                        matrix[dict[num_b]][dict[num_a]] -= 1
+
+    for idx, m in enumerate(matrix):
+        for i in m:
+            if isinstance(i,int) and idx > 0:
+                if i > 0:
+                    print(i,end='\t')
+                else:
+                    print(0,end='\t')
+            else:
+                print(i,end='\t')
+
+        print()
+
+
+
 
     outfile.close()
 if __name__=='__main__':main()
